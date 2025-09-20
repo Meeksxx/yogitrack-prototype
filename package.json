@@ -4,8 +4,10 @@
   "description": "An application to track the business processes at Yoga H'om",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "start": "node yogiserver.cjs"
+},
+
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Meeksxx/yogitrack-prototype.git"
