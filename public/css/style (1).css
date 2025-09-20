@@ -1,0 +1,169 @@
+/* ---------- Base & helpers ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #f5f8f8; color: #333; }
+h1, h2 { margin: 0 0 1rem; font-weight: 600; }
+a { text-decoration: none; }
+
+.text--center { text-align: center; }
+
+/* ---------- Layout variations ---------- */
+.layout--center {
+  display: flex; justify-content: center; align-items: center; min-height: 100vh;
+  padding: 2rem;
+}
+.layout--sidebar { 
+  display: flex; 
+  min-height: 100vh; 
+}
+
+/* ---------- Card ---------- */
+.card {
+  background: #fff; padding: 2rem; border-radius: 0.75rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,.06); width: 100%; max-width: 480px;
+}
+.card--wide { max-width: 560px; }
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  width: 220px; background: #bee6e0; color: #05713d;
+  display: flex; flex-direction: column; gap: 2rem; padding: 2rem 1rem;
+}
+.logo-wrap { display: flex; align-items: center; gap: .5rem; color: inherit; font-weight: 600; }
+.logo { width: 100x; height: 100px; }
+.nav { display: flex; flex-direction: column; gap: 1rem; }
+.nav a { color: inherit; padding: .25rem 0; }
+.nav a.active, .nav a:hover { opacity: .8; }
+
+/* ---------- Form elements ---------- */
+input, textarea {
+  width: 100%; padding: .6rem .75rem; border: 1px solid #ccc;
+  border-radius: .5rem; font-size: 1rem; margin-top: .25rem;
+}
+textarea { resize: vertical; }
+
+label { display: block; font-size: .9rem; margin-bottom: .75rem; }
+
+fieldset { border: 1px solid #ddd; border-radius: .5rem; padding: .75rem 1rem; margin-bottom: 1rem; }
+legend { padding: 0 .25rem; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-block; padding: .6rem 1.25rem; border-radius: .5rem;
+  background: #e0e0e0; color: #333; border: none; cursor: pointer; font-size: .95rem;
+}
+.btn:hover { background: #d5d5d5; }
+.btn--primary { background: #008080; color: #fff; }
+.btn--primary:hover { background: #006c6c; }
+.btn--danger { background: #c0392b; color: #fff; }
+.btn--danger:hover { background: #992a20; }
+
+.btn-row { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: center; margin-top: 1.5rem; }
+
+/* ---------- Background image for dashboard ---------- */
+/* ---------- Full-page background with faint overlay ---------- */
+.bg--image {
+  position: relative;                     /* ① establish containing block */
+  background: url('../images/YogaClass.jpg') no-repeat center/cover fixed;
+}
+
+/* ② the “veil” */
+.bg--image::before {
+  content: "";
+  position: absolute;
+  inset: 0;                               /* cover the whole body */
+  background: rgba(255, 255, 255, 0.55);  /* white veil @ 55% opacity */
+  /* Try rgba(0,128,128,.25) for a subtle teal tint instead */
+  pointer-events: none;                   /* don’t block clicks */
+  min-height: 100vh; 
+}
+
+
+.main-bg {
+  flex: 1;
+  position: relative;
+  background: url('../images/YogaClass.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Foreground content */
+.welcome-box {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 2.5rem 3rem;
+  border-radius: 1rem;
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Background image applied to the layout wrapper */
+.background {
+  background: url('../images/YogaClass.jpg') no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+}
+
+/* Only dims the main section */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.4);  /* or use rgba(0, 0, 0, 0.3) for dark tint */
+  z-index: 0;
+  
+}
+
+/* Make sure all layout content appears above the overlay */
+.layout--sidebar,
+.main-fill,
+.sidebar,
+.welcome-box {
+  position: relative;
+  z-index: 1;
+}
+
+.radio-row {
+  display: flex;
+  gap: 50px;
+  align-items: center;
+  justify-content: center; 
+}
+
+/* Matches style of text inputs */
+.form-input,
+select.form-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 5px;
+}
+
+/* Style for select dropdown to match input fields */
+.styled-select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  background-color: #fff;
+  appearance: none;       /* Remove default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg width="12" height="8" viewBox="0 0 12 8" xmlns="http://www.w3.org/2000/svg"><path d="M1.41.59L6 5.17l4.59-4.58L12 2l-6 6-6-6z" fill="%23333"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.7rem top 50%;
+  background-size: 0.65rem auto;
+}
