@@ -1,0 +1,24 @@
+[
+{
+    "saleId": 101,
+    "customerId": "Y001",
+    "Package": 
+    { 
+            "packageId": "P001",
+            "start date": "05-01-2025" , 
+            "end date": "05-30-2025",
+            "amount paid": 70.0
+    }
+},
+{
+    "saleId": 102,
+    "customerId":"Y002",  
+    "Package": 
+    { 
+            "packageId": "P002",
+            "start date": "05-01-2025" , 
+            "end date": "07-31-2025",
+            "amount paid": 120.0
+    }
+}
+]

@@ -4,10 +4,9 @@
   "description": "An application to track the business processes at Yoga H'om",
   "main": "index.js",
   "scripts": {
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "start": "node yogiserver.cjs"
-},
-
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node yogiserver.cjs"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Meeksxx/yogitrack-prototype.git"
@@ -19,6 +18,7 @@
   },
   "homepage": "https://github.com/Meeksxx/yogitrack-prototype#readme",
   "dependencies": {
+    "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "heroku": "^8.7.1",
     "mongodb": "^6.20.0",

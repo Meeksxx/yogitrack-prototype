@@ -1,0 +1,26 @@
+[
+    {
+        "customerId": "Y001",
+        "firstName": "Sara",
+        "lastName": "Doe",
+        "email": "sara@yoga.com",
+        "phone": "1-555-789-0001",
+        "senior": false,
+        "address": "01, Awesome Blvd. City, State, Zip",
+        "preferredContact": "phone",
+        "classBalance": 2
+
+        
+    },
+    {
+        "customerId": "Y002",
+        "firstName": "Sam",
+        "lastName": "Smith",
+        "email": "sam@yoga.com",
+        "phone": "1-234-567-8900",
+        "senior": true,
+        "address": "234, Sesame Street, City, State, Zip",
+        "preferredContact": "email",
+        "classBalance": 9
+    }
+]

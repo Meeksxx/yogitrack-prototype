@@ -1,0 +1,26 @@
+[
+  {
+    "classId": "A001",
+    "className": "Breath work",
+    "instructorId": "I001",
+    "classType": "General",
+    "description": "A beginners class for pranayama",
+    "daytime": [
+      {"day": "Mon", "time": "09:00:00", "duration": 45},
+      {"day":"Wed", "time":"09:00:00", "duration": 45},
+      {"day":"Fri", "time":"09:00:00", "duration": 45},
+      {"day":"Sun", "time":"11:00:00", "duration": 45}
+    ]
+  },
+  {
+    "classId": "A002",
+    "className": "Yoga with weights",
+    "instructorId": "I002",
+    "classType": "Special",
+    "description": "Advanced class for building strength",
+    "daytime": [
+      {"day": "Tue", "time":"16:00:00", "duration": 60},
+      {"day": "Thu", "time":"16:00:00", "duration": 60}
+    ]
+  }
+]

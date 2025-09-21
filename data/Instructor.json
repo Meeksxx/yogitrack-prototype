@@ -1,0 +1,44 @@
+[{
+        "instructorId": "I001",
+        "firstname": "John",
+        "lastname": "Doe",
+        "email": "john@yoga.com",
+        "phoneNumber": "1-123-456-7890",
+        "address": "10, Main Street, City, State, ZIP",
+        "YogaClass": 
+        {
+                "classId": "A001",
+                "className": "Breath work",
+                "instructorId": "I001",
+                "description": "A beginner class for practicing pranayama",
+                "daytime": [
+                        ["Mon", "09:00:00"],
+                        ["Wed", "09:00:00"],
+                        ["Fri", "09:00:00"],
+                        ["Sun", "11:00:00"]
+                ]
+
+        }
+},
+{
+        "instructorId": "I002",
+        "firstname": "Jane",
+        "lastname": "Doe",
+        "email": "jane@yoga.com",
+        "phoneNumber": "1-345-678-9900",
+        "address": "11, Healthy Street, City, State, ZIP",
+        "YogaClass": 
+        {
+                "classId": "A002",
+                "className": "Yoga with weights",
+                "instructorId": "I002",
+                "description": "Advanced class for building strength",
+                "daytime": [
+                        ["Tue", "16:00:00"],
+                        ["Thu", "16:00:00"]
+                        
+                ]
+
+        }
+}
+]

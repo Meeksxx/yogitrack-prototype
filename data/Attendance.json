@@ -1,0 +1,21 @@
+[
+{                                
+    "checkinId": 1,
+    "customerId": "Y001",
+    "classId": "A001", 
+    "datetime": "05-05-2025"
+},
+{                                
+    "checkinId": 2,
+    "customerId": "Y001",
+    "classId": "A002", 
+    "datetime": "05-07-2025"
+},
+{ 
+    "checkinId": 3,
+    "customerId": "Y002",
+    "classId": "A002",
+    "datetime": "05-15-2025"
+}
+
+]

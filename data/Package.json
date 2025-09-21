@@ -1,0 +1,38 @@
+[
+    { 
+        "packageId": "P001",
+        "packageName": "4 Class Pass",  
+        "description": "Valid for 1 month",
+        "price": 70.00
+    }, 
+    { 
+        "packageId": "S001",
+        "packageName": "4 Class Pass for seniors",  
+        "description": "Valid for 1 month",
+        "price": 60.00
+    }, 
+    { 
+        "packageId": "P002",
+        "packageName": "10 Class Pass",  
+        "description": "Valid for 3 months",
+        "price": 140.00
+    }, 
+     { 
+        "packageId": "S002",
+        "packageName": "10 Class Pass for seniors",  
+        "description": "Valid for 3 months",
+        "price": 120.00
+    }, 
+    {
+        "packageId": "P003",
+        "packageName": "3 months unlimited",  
+        "description": "Valid for 3 months",
+        "price": 400.00
+    },
+    {
+        "packageId": "S003",
+        "packageName": "3 months unlimited for seniors",  
+        "description": "Valid for 3 months",
+        "price": 360.00
+    }
+]
