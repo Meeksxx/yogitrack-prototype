@@ -1,17 +1,28 @@
 const express = require("express");
+require("./config/mongodbconn.cjs"); // keep this
 const app = express();
 
-// Serve static files from the public dir
+const BUILD_TAG = "srv-dupcheck-v4"; // <— shows up in /api/health and terminal
+
 app.use(express.static("public"));
 app.use(express.json());
 
+// Log EVERY request so we SEE traffic
+app.use((req, _res, next) => {
+  console.log(new Date().toISOString(), req.method, req.url);
+  next();
+});
+
+app.get("/api/health", (_req, res) =>
+  res.json({ ok: true, tag: BUILD_TAG, time: new Date().toISOString() })
+);
+
 app.use("/api/instructor", require("./routes/instructorRoutes.cjs"));
+app.use("/api/customer",   require("./routes/customerRoutes.cjs"));
 
-
-
-// Start the web server
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, function () {
+app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}...`);
-  console.log('Open http://localhost:8080/index.html in your browser to view the app.');
+  console.log(`Build tag: ${BUILD_TAG}`);
+  console.log(`Open http://localhost:${PORT}/index.html`);
 });
