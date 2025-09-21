@@ -21,61 +21,61 @@
   </aside>
 
   <main class="layout--center">
-    <form class="card" id="packageForm" novalidate>
+    <form class="card" id="packageForm">
       <h2>Package Details</h2>
 
-      <!-- SEARCH MODE: choose existing -->
-      <label id="packageIdLabel">Package ID
+      <!-- SEARCH MODE: choose existing package -->
+      <label id="pkgIdSelectLabel">Package
         <select id="packageIdSelect" class="form-input">
-          <option value="">-- Select Package Id --</option>
+          <option value="">-- Select Package --</option>
         </select>
       </label>
 
       <!-- ADD MODE: show generated ID -->
-      <label id="packageIdTextLabel" style="display:none;">Package ID</label>
-      <input id="packageIdText" type="text" name="packageId" readonly hidden />
-
-      <label>Package Name
-        <input type="text" name="name" required />
-      </label>
+      <label id="pkgIdTextLabel" style="display:none;">Package ID</label>
+      <input id="packageId" type="text" name="packageId" readonly hidden />
 
       <div class="grid-2">
         <label>Category
-          <select name="category" id="categorySelect" class="styled-select" required>
+          <select id="category" name="category" class="form-input">
             <option value="General">General</option>
             <option value="Senior">Senior</option>
           </select>
         </label>
-        <label>Class Type
-          <select name="classType" id="classTypeSelect" class="styled-select" required>
+        <label>Class&nbsp;Type
+          <select id="classType" name="classType" class="form-input">
             <option value="General">General</option>
             <option value="Special">Special</option>
           </select>
         </label>
       </div>
 
+      <label>Name
+        <input id="name" name="name" type="text" required />
+      </label>
+
       <div class="grid-2">
-        <label>Number of Classes
-          <select name="numClasses" id="numClassesSelect" class="styled-select" required>
-            <option value="1">1</option>
-            <option value="4">4</option>
-            <option value="10">10</option>
-            <option value="unlimited">Unlimited</option>
-          </select>
+        <label># Classes
+          <input id="numClasses" name="numClasses" type="number" min="0" value="4" />
         </label>
-        <label>Price (USD)
-          <input type="number" name="price" min="0" step="0.01" required />
+        <label style="display:flex;align-items:center;gap:.5rem;">
+          <input id="isUnlimited" name="isUnlimited" type="checkbox" />
+          Unlimited?
         </label>
       </div>
 
       <div class="grid-2">
-        <label>Start Date
-          <input type="date" name="startDate" required />
+        <label>Start&nbsp;Date
+          <input id="startDate" name="startDate" type="date" required />
         </label>
-        <label>End Date
-          <input type="date" name="endDate" required />
+        <label>End&nbsp;Date
+          <input id="endDate" name="endDate" type="date" required />
         </label>
       </div>
+
+      <label>Price ($)
+        <input id="price" name="price" type="number" min="0" step="0.01" required />
+      </label>
 
       <div class="btn-row">
         <button type="button" class="btn" id="searchBtn">Search</button>
@@ -87,7 +87,7 @@
     </form>
   </main>
 
-  <!-- served from /public -->
+  <!-- Root-relative so Express (/public) serves it -->
   <script src="/js/packages.js"></script>
 </body>
 </html>

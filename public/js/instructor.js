@@ -1,156 +1,179 @@
-let formMode = "search"; // Tracks the current mode of the form
+// public/js/instructor.js
+let formMode = "search";
 
-// Fetch all instructor IDs and populate the dropdown
 document.addEventListener("DOMContentLoaded", () => {
   setFormForSearch();
   initInstructorDropdown();
   addInstructorDropdownListener();
-
 });
 
-//SEARCH
-document.getElementById("searchBtn").addEventListener("click", async () => {
+/* -------------------- Buttons -------------------- */
+document.getElementById("searchBtn").addEventListener("click", () => {
   clearInstructorForm();
   setFormForSearch();
   initInstructorDropdown();
 });
 
-
-//ADD
-document.getElementById("addBtn").addEventListener("click", async () => {
+document.getElementById("addBtn").addEventListener("click", () => {
   setFormForAdd();
 });
 
-//SAVE
-document.getElementById("saveBtn").addEventListener("click", async () => {
-  if (formMode === "add") {
-    //Get max ID for instructorId
-    const res = await fetch("/api/instructor/getNextId");
-    const {nextId } = await res.json();
-    document.getElementById("instructorIdText").value = nextId;
+document.getElementById("saveBtn").addEventListener("click", onSaveInstructor);
 
-    const form = document.getElementById("instructorForm");
+document.getElementById("deleteBtn").addEventListener("click", onDeleteInstructor);
 
-    const instructorData = {
-      instructorId: nextId,
-      firstname: form.firstname.value.trim(),
-      lastname: form.lastname.value.trim(),
-      address: form.address.value.trim(),
-      phone: form.phone.value.trim(),
-      email: form.email.value.trim(),
-      preferredContact: form.pref[0].checked ? "phone" : "email",
-    };
-    try {
-      const res = await fetch("/api/instructor/add", {
+/* -------------------- Handlers -------------------- */
+async function onSaveInstructor() {
+  if (formMode !== "add") return;
+
+  const form = document.getElementById("instructorForm");
+
+  // simple client validation
+  const errs = [];
+  if (!form.firstname.value.trim()) errs.push("First name is required");
+  if (!form.lastname.value.trim())  errs.push("Last name is required");
+  if (errs.length) { alert("Please fix:\n• " + errs.join("\n• ")); return; }
+
+  // get next ID & show it
+  const idRes = await fetch("/api/instructor/getNextId");
+  if (!idRes.ok) return alert("Could not get next instructor id");
+  const { nextId } = await idRes.json();
+  document.getElementById("instructorIdText").value = nextId;
+
+  const pref = form.querySelector('input[name="pref"]:checked');
+  const payload = {
+    instructorId: nextId,
+    firstname: form.firstname.value.trim(),
+    lastname:  form.lastname.value.trim(),
+    address:   form.address.value.trim(),
+    phone:     form.phone.value.trim(),
+    email:     form.email.value.trim(),
+    preferredContact: pref ? pref.value : "email",
+  };
+
+  try {
+    // first attempt
+    let resp = await fetch("/api/instructor/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    let body = await resp.json().catch(() => ({}));
+
+    // duplicate name? ask to force
+    if (resp.status === 409 && body.code === "DUPLICATE_NAME") {
+      const ok = confirm("An instructor with this name already exists. Save anyway?");
+      if (!ok) { alert("Save cancelled."); return; }
+      resp = await fetch("/api/instructor/add?force=true", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(instructorData),
+        body: JSON.stringify(payload),
       });
-
-      const result = await res.json();
-      if (!res.ok)
-        throw new Error(result.message || "Failed to add instructor");
-
-      alert(`✅ Instructor ${instructorData.instructorId} added successfully!`);
-      form.reset();
-    } catch (err) {
-      alert("❌ Error: " + err.message);
+      body = await resp.json().catch(() => ({}));
     }
-  }
-});
 
-//DELETE
-document.getElementById("deleteBtn").addEventListener("click", async () => {
-  var select = document.getElementById("instructorIdSelect");
-  var instructorId = select.value.split(":")[0];
+    if (!resp.ok) throw new Error(body.message || body.error || `HTTP ${resp.status}`);
 
-  const response = await fetch(
-    `/api/instructor/deleteInstructor?instructorId=${instructorId}`, {
-      method: "DELETE"
-    });
-
-  if (!response.ok) {
-    throw new Error("Instructor delete failed");
-  } else {
-    alert(`Instructor with id ${instructorId} successfully deleted`);
-    clearInstructorForm();
+    alert(`✅ Instructor ${payload.instructorId} added successfully!`);
+    form.reset();
+    setFormForSearch();
     initInstructorDropdown();
-    
+  } catch (e) {
+    alert(`❌ Error: ${e.message}`);
   }
-});
+}
 
+async function onDeleteInstructor() {
+  const select = document.getElementById("instructorIdSelect");
+  const val = select.value;
+  if (!val) return alert("Pick an instructor to delete.");
+  const instructorId = val.split(":")[0];
+
+  if (!confirm(`Delete ${instructorId}?`)) return;
+
+  const resp = await fetch(`/api/instructor/deleteInstructor?instructorId=${encodeURIComponent(instructorId)}`, {
+    method: "DELETE",
+  });
+
+  const result = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    alert(`Delete failed: ${result.message || result.error || resp.status}`);
+    return;
+  }
+  alert(`Instructor ${instructorId} deleted`);
+  clearInstructorForm();
+  initInstructorDropdown();
+}
+
+/* -------------------- Helpers -------------------- */
 async function initInstructorDropdown() {
   const select = document.getElementById("instructorIdSelect");
   try {
-    const response = await fetch("/api/instructor/getInstructorIds");
-    const instructorIds = await response.json();
+    const res = await fetch("/api/instructor/getInstructorIds");
+    const ids = await res.json();
 
-    instructorIds.forEach((instr) => {
+    select.innerHTML = `<option value="">-- Select Instructor Id --</option>`;
+    ids.forEach((instr) => {
       const option = document.createElement("option");
-      option.value = instr.instructorId;
+      option.value = `${instr.instructorId}:${instr.firstname}`;
       option.textContent = `${instr.instructorId}:${instr.firstname} ${instr.lastname}`;
       select.appendChild(option);
     });
   } catch (err) {
-    console.err("Failed to load instructor IDs: ", err);
+    console.error("Failed to load instructor IDs:", err);
   }
 }
 
-async function addInstructorDropdownListener() {
+function addInstructorDropdownListener() {
   const form = document.getElementById("instructorForm");
   const select = document.getElementById("instructorIdSelect");
   select.addEventListener("change", async () => {
-    var instructorId = select.value.split(":")[0];
-    console.log(instructorId);
+    const instructorId = (select.value || "").split(":")[0];
+    if (!instructorId) return;
+
     try {
-      const res = await fetch(
-        `/api/instructor/getInstructor?instructorId=${instructorId}`
-      );
+      const res = await fetch(`/api/instructor/getInstructor?instructorId=${encodeURIComponent(instructorId)}`);
       if (!res.ok) throw new Error("Instructor search failed");
-
       const data = await res.json();
-      console.log(data);
-      if (!data || Object.keys(data).length === 0) {
-        alert("No instructor found");
-        return;
-      }
 
-      //Fill form with data
       form.firstname.value = data.firstname || "";
-      form.lastname.value = data.lastname || "";
-      form.address.value = data.address || "";
-      form.phone.value = data.phone || "";
-      form.email.value = data.email || "";
+      form.lastname.value  = data.lastname  || "";
+      form.address.value   = data.address   || "";
+      form.phone.value     = data.phone     || "";
+      form.email.value     = data.email     || "";
 
-      if (data.preferredContact === "phone") {
-        form.pref[0].checked = true;
-      } else form.pref[1].checked = true;
+      const mode = (data.preferredContact || "email").toLowerCase();
+      const phoneRadio = form.querySelector('input[name="pref"][value="phone"]');
+      const emailRadio = form.querySelector('input[name="pref"][value="email"]');
+      if (mode === "phone" && phoneRadio) phoneRadio.checked = true;
+      else if (emailRadio) emailRadio.checked = true;
     } catch (err) {
-      alert(`Error searching package: ${instructorId} - ${err.message}`);
+      alert(`Error searching instructor: ${err.message}`);
     }
   });
 }
 
 function clearInstructorForm() {
-  document.getElementById("instructorForm").reset(); // Clears all inputs including text, textarea, and unchecks radio buttons
+  document.getElementById("instructorForm").reset();
   document.getElementById("instructorIdSelect").innerHTML = "";
 }
 
 function setFormForSearch() {
   formMode = "search";
-  //toggle back to search mode
-  document.getElementById("instructorIdLabel").style.display = "block"; // Show dropdown
-  document.getElementById("instructorIdTextLabel").style.display = "none"; // Hide text input
-  document.getElementById("instructorIdText").value = "";
+  document.getElementById("instructorIdLabel").style.display = "block";
+  document.getElementById("instructorIdTextLabel").style.display = "none";
   document.getElementById("instructorIdText").style.display = "none";
-  document.getElementById("instructorForm").reset();
+  document.getElementById("instructorIdText").value = "";
+  const emailRadio = document.querySelector('input[name="pref"][value="email"]');
+  if (emailRadio) emailRadio.checked = true;
 }
 
 function setFormForAdd() {
   formMode = "add";
-    //hide the instructor id drop down and label
   document.getElementById("instructorIdLabel").style.display = "none";
   document.getElementById("instructorIdTextLabel").style.display = "block";
-  document.getElementById("instructorIdText").value = "";
+  document.getElementById("instructorIdText").style.display = "block";
   document.getElementById("instructorForm").reset();
+  const emailRadio = document.querySelector('input[name="pref"][value="email"]');
+  if (emailRadio) emailRadio.checked = true;
 }

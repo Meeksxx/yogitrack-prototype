@@ -1,46 +1,173 @@
-let formMode = "search"; // "search" or "add"
+console.log("packages.js loaded");
+
+let pkgMode = "search"; // "search" or "add"
 
 document.addEventListener("DOMContentLoaded", () => {
+  wireEvents();
   setFormForSearch();
-  initPackageDropdown();
-  addPackageDropdownListener();
-
-  document.getElementById("searchBtn").addEventListener("click", onSearchClick);
-  document.getElementById("addBtn").addEventListener("click", onAddClick);
-  document.getElementById("saveBtn").addEventListener("click", onSaveClick);
-  document.getElementById("deleteBtn").addEventListener("click", onDeleteClick);
-
-  // When category changes in ADD mode, refresh the next id
-  document.getElementById("categorySelect").addEventListener("change", () => {
-    if (formMode === "add") setNextIdFromCategory();
-  });
+  initDropdown();
 });
 
-/* ---------------- buttons ---------------- */
-function onSearchClick() {
-  clearPackageForm();
-  setFormForSearch();
-  initPackageDropdown();
+function wireEvents() {
+  document.getElementById("searchBtn").addEventListener("click", () => {
+    clearForm();
+    setFormForSearch();
+    initDropdown();
+  });
+
+  document.getElementById("addBtn").addEventListener("click", async () => {
+    setFormForAdd();
+    await refreshNextId(); // show next id immediately
+  });
+
+  document.getElementById("saveBtn").addEventListener("click", onSave);
+
+  // Not implemented in API; keep UX consistent
+  document.getElementById("deleteBtn").addEventListener("click", () => {
+    alert("Delete not implemented in this increment.");
+  });
+
+  document.getElementById("packageIdSelect").addEventListener("change", onPickExisting);
+
+  document.getElementById("category").addEventListener("change", () => {
+    if (pkgMode === "add") refreshNextId();
+  });
+
+  document.getElementById("isUnlimited").addEventListener("change", (e) => {
+    const n = document.getElementById("numClasses");
+    if (e.target.checked) {
+      n.value = 0;
+      n.setAttribute("disabled", "disabled");
+    } else {
+      n.removeAttribute("disabled");
+      if (Number(n.value) === 0) n.value = 4;
+    }
+  });
 }
 
-function onAddClick() {
-  setFormForAdd();
-  setNextIdFromCategory();
+/* ---------- Modes ---------- */
+function setFormForSearch() {
+  pkgMode = "search";
+  document.getElementById("pkgIdSelectLabel").style.display = "block";
+  document.getElementById("pkgIdTextLabel").style.display   = "none";
+  document.getElementById("packageId").style.display         = "none";
+  document.getElementById("packageId").value = "";
 }
 
-async function onSaveClick() {
-  if (formMode !== "add") return;
+function setFormForAdd() {
+  pkgMode = "add";
+  document.getElementById("pkgIdSelectLabel").style.display = "none";
+  document.getElementById("pkgIdTextLabel").style.display   = "block";
+  document.getElementById("packageId").style.display         = "block";
+  document.getElementById("packageId").readOnly              = true;
 
-  const form = document.getElementById("packageForm");
+  clearForm();
+  // sensible defaults
+  document.getElementById("category").value  = "General";
+  document.getElementById("classType").value = "General";
+  document.getElementById("isUnlimited").checked = false;
+  document.getElementById("numClasses").removeAttribute("disabled");
+}
 
-  // front-end validation
-  const errors = validatePackageForm(form);
-  if (errors.length) {
-    alert("Please fix:\n• " + errors.join("\n• "));
+function clearForm() {
+  document.getElementById("packageForm").reset();
+  document.getElementById("packageIdSelect").innerHTML =
+    `<option value="">-- Select Package --</option>`;
+}
+
+/* ---------- Data helpers ---------- */
+async function initDropdown() {
+  try {
+    const res = await fetch("/api/package/getPackageIds");
+    const list = await res.json();
+    const sel = document.getElementById("packageIdSelect");
+    sel.innerHTML = `<option value="">-- Select Package --</option>`;
+    list.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.packageId;
+      opt.textContent = `${p.packageId}: ${p.name} (${p.category})`;
+      sel.appendChild(opt);
+    });
+  } catch (e) {
+    console.error("Failed to load package list:", e);
+  }
+}
+
+async function refreshNextId() {
+  const cat = document.getElementById("category").value || "General";
+  const res = await fetch(`/api/package/getNextId?category=${encodeURIComponent(cat)}`);
+  const body = await res.json();
+  document.getElementById("packageId").value = body.nextId || "";
+}
+
+async function onPickExisting() {
+  const id = document.getElementById("packageIdSelect").value;
+  if (!id) return;
+  try {
+    const r = await fetch(`/api/package/getPackage?packageId=${encodeURIComponent(id)}`);
+    const p = await r.json();
+
+    // Fill form (stays in search mode)
+    document.getElementById("category").value   = p.category || "General";
+    document.getElementById("classType").value  = p.classType || "General";
+    document.getElementById("name").value       = p.name || "";
+    document.getElementById("numClasses").value = Number(p.numClasses || 0);
+    document.getElementById("isUnlimited").checked = !!p.isUnlimited;
+
+    const n = document.getElementById("numClasses");
+    if (p.isUnlimited) { n.setAttribute("disabled","disabled"); } else { n.removeAttribute("disabled"); }
+
+    document.getElementById("startDate").value = p.startDate ? p.startDate.slice(0,10) : "";
+    document.getElementById("endDate").value   = p.endDate   ? p.endDate.slice(0,10)   : "";
+    document.getElementById("price").value     = (p.price ?? "");
+  } catch (e) {
+    alert("Failed to load package: " + e.message);
+  }
+}
+
+/* ---------- Save ---------- */
+function validateForm() {
+  const errs = [];
+  const name = document.getElementById("name").value.trim();
+  const price = Number(document.getElementById("price").value);
+  const start = document.getElementById("startDate").value;
+  const end   = document.getElementById("endDate").value;
+  const unlimited = document.getElementById("isUnlimited").checked;
+  const num = Number(document.getElementById("numClasses").value);
+
+  if (!name) errs.push("Name is required");
+  if (!Number.isFinite(price) || price < 0) errs.push("Price must be 0 or more");
+  if (!start) errs.push("Start date is required");
+  if (!end)   errs.push("End date is required");
+  if (start && end && new Date(start) > new Date(end)) errs.push("Start date cannot be after end date");
+  if (!unlimited && (!Number.isInteger(num) || num < 1)) errs.push("# Classes must be at least 1 (or mark Unlimited)");
+
+  return errs;
+}
+
+async function onSave() {
+  if (pkgMode !== "add") {
+    alert("Click 'Add New' first to create a package.");
     return;
   }
 
-  const payload = buildPayload(form);
+  const errs = validateForm();
+  if (errs.length) {
+    alert("Please fix:\n• " + errs.join("\n• "));
+    return;
+  }
+
+  const payload = {
+    packageId: document.getElementById("packageId").value,
+    name:      document.getElementById("name").value.trim(),
+    category:  document.getElementById("category").value,
+    classType: document.getElementById("classType").value,
+    numClasses: Number(document.getElementById("numClasses").value || 0),
+    isUnlimited: document.getElementById("isUnlimited").checked,
+    startDate: document.getElementById("startDate").value,
+    endDate:   document.getElementById("endDate").value,
+    price:     Number(document.getElementById("price").value)
+  };
 
   try {
     let resp = await fetch("/api/package/add", {
@@ -48,171 +175,27 @@ async function onSaveClick() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    let result = await resp.json().catch(() => ({}));
-    console.log("first POST status =", resp.status, result);
+    let body = await resp.json().catch(() => ({}));
 
-    if (resp.status === 409 && result.code === "DUPLICATE_PACKAGE") {
-      const ok = confirm("A package with the same name and category exists. Save anyway?");
-      if (!ok) {
-        alert("Save cancelled.");
-        return;
-      }
+    if (resp.status === 409 && body.code === "DUPLICATE_NAME") {
+      const ok = confirm("A package with the same name & category exists. Save anyway?");
+      if (!ok) return;
       resp = await fetch("/api/package/add?force=true", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      result = await resp.json().catch(() => ({}));
+      body = await resp.json().catch(() => ({}));
     }
 
-    if (!resp.ok) {
-      throw new Error(result.message || result.error || `HTTP ${resp.status}`);
-    }
+    if (!resp.ok) throw new Error(body.message || body.error || `HTTP ${resp.status}`);
 
     alert(`✅ Package ${payload.packageId} added!`);
-    form.reset();
+    // Reset to search mode and refresh list
     setFormForSearch();
-    initPackageDropdown();
-  } catch (err) {
-    alert(`❌ Error: ${err.message}`);
-  }
-}
-
-async function onDeleteClick() {
-  const select = document.getElementById("packageIdSelect");
-  const val = select.value;
-  if (!val) return alert("Pick a package to delete.");
-  const packageId = val.split(":")[0];
-
-  if (!confirm(`Delete ${packageId}?`)) return;
-
-  const resp = await fetch(`/api/package/delete?packageId=${encodeURIComponent(packageId)}`, {
-    method: "DELETE"
-  });
-  const result = await resp.json().catch(() => ({}));
-  if (!resp.ok) {
-    alert(`Delete failed: ${result.message || result.error || resp.status}`);
-    return;
-  }
-  alert(`Package ${packageId} deleted`);
-  clearPackageForm();
-  initPackageDropdown();
-}
-
-/* ---------------- helpers ---------------- */
-
-function validatePackageForm(form) {
-  const errors = [];
-  if (!form.name.value.trim()) errors.push("Package name is required");
-
-  const price = Number(form.price.value);
-  if (!form.price.value || isNaN(price) || price < 0) errors.push("Price must be a positive number");
-
-  const sd = new Date(form.startDate.value);
-  const ed = new Date(form.endDate.value);
-  if (!(sd instanceof Date) || isNaN(sd)) errors.push("Valid start date is required");
-  if (!(ed instanceof Date) || isNaN(ed)) errors.push("Valid end date is required");
-  if (!errors.length && sd > ed) errors.push("Start date must be before end date");
-
-  const n = form.numClasses.value;
-  if (!["1", "4", "10", "unlimited"].includes(n)) {
-    errors.push("Number of classes must be 1, 4, 10, or Unlimited");
-  }
-
-  return errors;
-}
-
-function buildPayload(form) {
-  const numRaw = form.numClasses.value;
-  const isUnlimited = numRaw === "unlimited";
-
-  return {
-    packageId: document.getElementById("packageIdText").value.trim(),
-    name: form.name.value.trim(),
-    category: form.category.value,
-    classType: form.classType.value,
-    numClasses: isUnlimited ? "unlimited" : Number(numRaw),
-    startDate: form.startDate.value,
-    endDate: form.endDate.value,
-    price: Number(form.price.value)
-  };
-}
-
-async function setNextIdFromCategory() {
-  const cat = document.getElementById("categorySelect").value || "General";
-  try {
-    const r = await fetch(`/api/package/getNextId?category=${encodeURIComponent(cat)}`);
-    const { nextId } = await r.json();
-    document.getElementById("packageIdText").value = nextId;
+    clearForm();
+    initDropdown();
   } catch (e) {
-    console.error("getNextId failed", e);
+    alert("❌ Save failed: " + e.message);
   }
-}
-
-async function initPackageDropdown() {
-  const select = document.getElementById("packageIdSelect");
-  try {
-    const res = await fetch("/api/package/getPackageIds");
-    const ids = await res.json();
-    select.innerHTML = `<option value="">-- Select Package Id --</option>`;
-    ids.forEach(p => {
-      const opt = document.createElement("option");
-      opt.value = `${p.packageId}:${p.name}`;
-      opt.textContent = `${p.packageId}: ${p.name} (${p.category})`;
-      select.appendChild(opt);
-    });
-  } catch (err) {
-    console.error("Failed to load package IDs:", err);
-  }
-}
-
-function addPackageDropdownListener() {
-  const select = document.getElementById("packageIdSelect");
-  select.addEventListener("change", async () => {
-    const packageId = (select.value || "").split(":")[0];
-    if (!packageId) return;
-
-    try {
-      const res = await fetch(`/api/package/getPackage?packageId=${encodeURIComponent(packageId)}`);
-      if (!res.ok) throw new Error("Package fetch failed");
-      const d = await res.json();
-
-      const form = document.getElementById("packageForm");
-      document.getElementById("packageIdText").value = d.packageId || "";
-      form.name.value       = d.name || "";
-      form.category.value   = d.category || "General";
-      form.classType.value  = d.classType || "General";
-      form.numClasses.value = d.isUnlimited ? "unlimited" : String(d.numClasses ?? "");
-      form.price.value      = d.price ?? "";
-      form.startDate.value  = d.startDate ? d.startDate.substring(0,10) : "";
-      form.endDate.value    = d.endDate   ? d.endDate.substring(0,10)   : "";
-    } catch (err) {
-      alert(`Error loading ${packageId}: ${err.message}`);
-    }
-  });
-}
-
-function clearPackageForm() {
-  document.getElementById("packageForm").reset();
-  document.getElementById("packageIdSelect").innerHTML = "";
-  document.getElementById("packageIdText").value = "";
-}
-
-function setFormForSearch() {
-  formMode = "search";
-  document.getElementById("packageIdLabel").style.display = "block";
-  document.getElementById("packageIdTextLabel").style.display = "none";
-  document.getElementById("packageIdText").style.display = "none";
-}
-
-function setFormForAdd() {
-  formMode = "add";
-  document.getElementById("packageIdLabel").style.display = "none";
-  document.getElementById("packageIdTextLabel").style.display = "block";
-  document.getElementById("packageIdText").style.display = "block";
-  document.getElementById("packageForm").reset();
-  // default values
-  document.getElementById("categorySelect").value = "General";
-  document.getElementById("classTypeSelect").value = "General";
-  document.getElementById("numClassesSelect").value = "4";
 }

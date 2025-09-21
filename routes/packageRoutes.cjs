@@ -2,10 +2,12 @@ const express = require("express");
 const router = express.Router();
 const pkg = require("../controllers/packageController.cjs");
 
-router.get("/getNextId", pkg.getNextId);
-router.post("/add", pkg.add);
+// read-only helpers
+router.get("/getNextId",     pkg.getNextId);
+router.get("/getPackage",    pkg.getPackage);
 router.get("/getPackageIds", pkg.getPackageIds);
-router.get("/getPackage", pkg.getPackage);
-router.delete("/delete", pkg.deletePackage);
+
+// create
+router.post("/add",          pkg.add);
 
 module.exports = router;

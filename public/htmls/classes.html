@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YogiTrack • Classes</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="layout--sidebar">
+  <aside class="sidebar">
+    <a class="logo-wrap" href="dashboard.html">
+      <img src="../images/Logo.png" class="logo" alt="YogiTrack Logo" />
+    </a>
+    <nav class="nav">
+      <a href="instructor.html">Instructors</a>
+      <a href="packages.html">Packages</a>
+      <a class="active" href="classes.html">Class Schedule</a>
+      <a href="customer.html">Customers</a>
+      <a href="../index.html">Log Out</a>
+    </nav>
+  </aside>
+
+  <main class="layout--center">
+    <form class="card" id="classForm" novalidate>
+      <h2>Class Details</h2>
+
+      <label id="classIdLabel">Class ID
+        <select id="classIdSelect" class="form-input">
+          <option value="">-- Select Class Id --</option>
+        </select>
+      </label>
+
+      <label id="classIdTextLabel" style="display:none;">Class ID</label>
+      <input id="classIdText" type="text" name="classId" readonly hidden />
+
+      <label>Class Name
+        <input type="text" name="className" required />
+      </label>
+
+      <div class="grid-2">
+        <label>Instructor
+          <select name="instructorId" id="instructorSelect" class="styled-select" required>
+            <option value="">-- Select Instructor --</option>
+          </select>
+        </label>
+        <label>Class Type
+          <select name="classType" id="classTypeSelect" class="styled-select" required>
+            <option value="General">General</option>
+            <option value="Special">Special</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="grid-2">
+        <label>Pay Rate (USD)
+          <input type="number" name="payRate" min="0" step="0.01" value="0" />
+        </label>
+      </div>
+
+      <label>Description
+        <textarea name="description" rows="2"></textarea>
+      </label>
+
+      <fieldset>
+        <legend>Weekly Schedule (at least one slot)</legend>
+        <div id="slots"></div>
+        <button type="button" class="btn" id="addSlotBtn">+ Add Slot</button>
+      </fieldset>
+
+      <div class="btn-row">
+        <button type="button" class="btn" id="searchBtn">Search</button>
+        <button type="button" class="btn btn-primary" id="addBtn">Add&nbsp;New</button>
+        <button type="button" class="btn" id="saveBtn">Save</button>
+        <button type="button" class="btn btn-danger" id="deleteBtn">Delete</button>
+        <a class="btn" href="dashboard.html">Exit</a>
+      </div>
+    </form>
+  </main>
+
+  <script src="/js/classes.js"></script>
+</body>
+</html>
