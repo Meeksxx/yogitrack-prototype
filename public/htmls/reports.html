@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>YogiTrack • Reports</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="layout--center">
+  <main class="card">
+    <h2>Studio Summary</h2>
+    <pre id="studio"></pre>
+
+    <h3>Quick Checks</h3>
+    <div class="grid-2">
+      <label>Instructor Id <input id="rid" class="form-input" placeholder="I001"/></label>
+      <button class="btn" id="r1">Instructor Performance</button>
+      <label>Class Id <input id="cid" class="form-input" placeholder="CL001"/></label>
+      <button class="btn" id="r2">Class Attendance</button>
+      <label>Customer Id <input id="uid" class="form-input" placeholder="C001"/></label>
+      <button class="btn" id="r3">Customer Attendance</button>
+    </div>
+    <pre id="out"></pre>
+  </main>
+
+  <script>
+  (async function(){
+    const studio = await fetch("/api/report/studioSummary").then(r=>r.json()).catch(()=>({}));
+    document.getElementById("studio").textContent = JSON.stringify(studio, null, 2);
+
+    document.getElementById("r1").onclick = async ()=> {
+      const rid = document.getElementById("rid").value.trim();
+      const d = await fetch("/api/report/instructorPerformance?instructorId="+encodeURIComponent(rid)).then(r=>r.json());
+      document.getElementById("out").textContent = JSON.stringify(d, null, 2);
+    };
+    document.getElementById("r2").onclick = async ()=> {
+      const cid = document.getElementById("cid").value.trim();
+      const d = await fetch("/api/report/classAttendance?classId="+encodeURIComponent(cid)).then(r=>r.json());
+      document.getElementById("out").textContent = JSON.stringify(d, null, 2);
+    };
+    document.getElementById("r3").onclick = async ()=> {
+      const uid = document.getElementById("uid").value.trim();
+      const d = await fetch("/api/report/customerAttendance?customerId="+encodeURIComponent(uid)).then(r=>r.json());
+      document.getElementById("out").textContent = JSON.stringify(d, null, 2);
+    };
+  })();
+  </script>
+</body>
+</html>
