@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YogiTrack • Record a Sale</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="layout--sidebar">
+  <aside class="sidebar">
+    <a class="logo-wrap" href="dashboard.html">
+      <img src="../images/Logo.png" class="logo" alt="YogiTrack Logo" />
+    </a>
+    <nav class="nav">
+      <a href="instructor.html">Instructors</a>
+      <a href="customer.html">Customers</a>
+      <a href="packages.html">Packages</a>
+      <a href="classes.html">Class Schedule</a>
+      <a class="active" href="sale.html">Record a Sale</a>
+      <a href="../index.html">Log Out</a>
+    </nav>
+  </aside>
+
+  <main class="layout--center">
+    <form class="card" id="saleForm" novalidate>
+      <h2>Record a Sale</h2>
+
+      <label>Customer
+        <select id="customerSelect" class="form-input" required>
+          <option value="">-- Select Customer --</option>
+        </select>
+      </label>
+
+      <label>Package
+        <select id="packageSelect" class="form-input" required>
+          <option value="">-- Select Package --</option>
+        </select>
+      </label>
+
+      <div class="grid-2">
+        <label>Amount Paid ($)
+          <input type="number" id="amountPaid" min="0" step="1" required />
+        </label>
+        <label>Payment Mode
+          <select id="paymentMode" class="form-input">
+            <option value="card">Card</option>
+            <option value="cash">Cash</option>
+            <option value="check">Check</option>
+            <option value="zelle">Zelle</option>
+            <option value="venmo">Venmo</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="grid-2">
+        <label>Start Date
+          <input type="date" id="startDate" required />
+        </label>
+        <label>End Date
+          <input type="date" id="endDate" required />
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>Package Details (read-only)</legend>
+        <div class="grid-2">
+          <label>Class Type
+            <input type="text" id="pkgClassType" readonly />
+          </label>
+          <label>Classes in Package
+            <input type="text" id="pkgNumClasses" readonly />
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="saveBtn">Save Sale</button>
+        <a class="btn" href="dashboard.html">Exit</a>
+      </div>
+    </form>
+  </main>
+
+  <script src="/js/sale.js"></script>
+</body>
+</html>
