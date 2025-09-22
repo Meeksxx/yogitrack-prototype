@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>YogiTrack • Attendance</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="layout--sidebar">
+  <aside class="sidebar">
+    <a class="logo-wrap" href="dashboard.html"><img src="../images/Logo.png" class="logo" alt="YogiTrack"/></a>
+    <nav class="nav">
+      <a href="instructor.html">Instructors</a>
+      <a href="packages.html">Packages</a>
+      <a href="classes.html">Class Schedule</a>
+      <a href="customer.html">Customers</a>
+      <a class="active" href="attendance.html">Attendance</a>
+      <a href="reports.html">Reports</a>
+      <a href="../index.html">Log Out</a>
+    </nav>
+  </aside>
+
+  <main class="layout--center">
+    <form class="card" id="attForm" novalidate>
+      <h2>Record Attendance</h2>
+
+      <label>Instructor
+        <select id="instructorId" class="form-input" required>
+          <option value="">-- pick instructor --</option>
+        </select>
+      </label>
+
+      <label>Class (filtered by instructor)
+        <select id="classId" class="form-input" required>
+          <option value="">-- pick class --</option>
+        </select>
+      </label>
+
+      <label>Date & Time
+        <input id="when" class="form-input" type="datetime-local" required/>
+        <small id="scheduleWarn" class="text-warn" style="display:none;">⚠️ Selected time doesn’t match schedule</small>
+      </label>
+
+      <fieldset>
+        <legend>Select Customers</legend>
+        <div id="customerList" class="list"></div>
+      </fieldset>
+
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="saveBtn">Save Attendance</button>
+        <a class="btn" href="dashboard.html">Exit</a>
+      </div>
+    </form>
+  </main>
+
+  <script src="/js/attendance.js"></script>
+</body>
+</html>
